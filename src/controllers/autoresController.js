@@ -3,23 +3,29 @@ import autores from "../models/Autor.js";
 class AutorController {
   static listarAutores = async (req, res) => {
     try {
-      const listaDeAutores = await autores.find();
-      res.status(200).json(listaDeAutores);
+      const autoresResultado = await autores.find();
+      res.status(200).json(autoresResultado);
     } catch (error) {
       console.error(error);
-      res.status(500).json({erro: "Ocorreu um erro ao buscar os autores."});
+      res.status(500).json({erro: "Erro interno no servidor."});
     }
   };
 
   static listarAutorPorId = async (req, res) => {
     try {
       const id = req.params.id;
-      const dadosAutor = await autores.findById(id);
-      res.status(200).json(dadosAutor);
+      const autorResultado = await autores.findById(id);
+      if (autorResultado !== null) {
+        res.status(200).json(autorResultado);
+      } else {
+        res.status(500).json({
+          message: "Id do autor não localizado."
+        });
+      }
     } catch (error) {
       console.error(error);
       res.status(500).json({
-        erro: "Id do autor não localizado.",
+        erro: "Erro interno no servidor.",
         message: `${error.message}`,
       });
     }

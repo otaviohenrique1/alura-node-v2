@@ -1,25 +1,31 @@
 import mongoose from "mongoose";
+import ErroBase from "../errors/ErroBase.js";
+import RequisicaoIncorreta from "../errors/RequisicaoIncorreta.js";
+import ErroValidacao from "../errors/ErroValidacao.js";
 
 // eslint-disable-next-line no-unused-vars
 function manipuladorDeErros(erro, req, res, next) {
   if (erro instanceof mongoose.Error.CastError) {
-    res.status(400).send({
-      message: "Um ou mais dados fornecidos estao incorretos.",
-    });
+    new RequisicaoIncorreta().enviarResposta(res);
+    // res.status(400).send({
+    //   message: "Um ou mais dados fornecidos estao incorretos.",
+    // });
   } else if (erro instanceof mongoose.Error.ValidationError) {
-    const mensagensErro = Object.values(erro.errors)
-      .map((erro) => erro.message)
-      .join("; ");
+    new ErroValidacao(erro).enviarResposta(res);
+    // const mensagensErro = Object.values(erro.errors)
+    //   .map((erro) => erro.message)
+    //   .join("; ");
 
-    res.status(400).send({
-      message: `Os seguintes erros foram encontrados: ${mensagensErro}`,
-    });
+    // res.status(400).send({
+    //   message: `Os seguintes erros foram encontrados: ${mensagensErro}`,
+    // });
   }
   else {
-    res.status(500).json({
-      erro: "Erro interno no servidor.",
-      message: `${erro.message}`,
-    });
+    new ErroBase().enviarResposta(res);
+    // res.status(500).json({
+    //   erro: "Erro interno no servidor.",
+    //   message: `${erro.message}`,
+    // });
   }
 }
 

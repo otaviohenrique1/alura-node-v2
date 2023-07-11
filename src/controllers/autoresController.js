@@ -1,6 +1,7 @@
 // import mongoose from "mongoose";
 import NaoEncontrado from "../errors/NaoEncontrado.js";
-import autores from "../models/Autor.js";
+import { autores } from "../models/index.js";
+// import autores from "../models/Autor.js";
 
 class AutorController {
   static listarAutores = async (req, res, next) => {

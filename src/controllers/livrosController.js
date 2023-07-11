@@ -108,10 +108,14 @@ class LivroController {
     try {
       const { editora, titulo } = req.query;
 
+      // const regex = new RegExp(titulo, "i"); // "i" => nao diferencia letras maiusculas de minusculas
+
       const busca = {};
       
       if (editora) busca.editora = editora;
-      if (titulo) busca.titulo = titulo;
+      if (titulo) busca.titulo = { $regex: titulo, $options: "i" }; // operador de mongodb
+      // if (titulo) busca.titulo = regex;
+      // if (titulo) busca.titulo = titulo;
 
       const livroResultado = await livros.find(busca);
       

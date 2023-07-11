@@ -5,6 +5,7 @@ const router = express.Router();
 
 router
   .get("/livros", LivroController.listarLivros)
+  // .get("/livros", LivroController.listarLivrosTeste) // Sem paginacao e limite
   .get("/livros/busca", LivroController.listarLivroPorFiltro)
   // .get("/livros/busca", LivroController.listarLivroPorEditora)
   .get("/livros/:id", LivroController.listarLivroPorId)

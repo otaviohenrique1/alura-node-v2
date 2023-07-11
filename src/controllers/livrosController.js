@@ -1,5 +1,5 @@
 import NaoEncontrado from "../errors/NaoEncontrado.js";
-import { livros } from "../models/index.js";
+import { autores, livros } from "../models/index.js";
 // import livros from "../models/Livro.js";
 
 class LivroController {
@@ -106,9 +106,11 @@ class LivroController {
 
   static listarLivroPorFiltro = async (req, res, next) => {
     try {
-      const busca = processaBusca(req.query);
+      const busca = await processaBusca(req.query);
 
-      const livroResultado = await livros.find(busca);
+      const livroResultado = await livros.find(busca)
+        .populate("autor")
+        .exec();
 
       res.status(200).send(livroResultado);
     } catch (error) {
@@ -154,8 +156,8 @@ class LivroController {
   // };
 }
 
-function processaBusca(parametros) {
-  const { editora, titulo, minPaginas, maxPaginas } = parametros;
+async function processaBusca(parametros) {
+  const { editora, titulo, minPaginas, maxPaginas, nomeAutor } = parametros;
 
   // "i" => nao diferencia letras maiusculas de minusculas
   // const regex = new RegExp(titulo, "i");
@@ -174,6 +176,12 @@ function processaBusca(parametros) {
 
   // $lte => Less Than or Equal => Menor ou igual que
   if (maxPaginas) busca.numeroPaginas.$lte = maxPaginas;
+
+  if (nomeAutor) {
+    const autor = await autores.findOne({ nome: nomeAutor });
+    const autorId = autor._id;
+    busca.autor = autorId;
+  }
 
   return busca;
 }

@@ -2,5 +2,4 @@ import "./validadorGlobal.js";
 import autores from "./Autor.js";
 import livros from "./Livro.js";
 
-
-export default { autores, livros };
+export { autores, livros };

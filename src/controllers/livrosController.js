@@ -104,21 +104,38 @@ class LivroController {
     }
   };
 
-  static listarLivroPorEditora = (req, res, next) => {
-    const edirora = req.query.editora;
-    livros.find({ "editora": edirora })
-      .then((livro) => {
-        res.status(200).json(livro);
-      })
-      .catch((error) => {
-        next(error);
-        // console.error(error);
-        // res.status(500).json({
-        //   erro: "Editora do livro não localizada.",
-        //   message: `${error.message}`,
-        // });
-      });
+  static listarLivroPorFiltro = async (req, res, next) => {
+    try {
+      const { editora, titulo } = req.query;
+
+      const busca = {};
+      
+      if (editora) busca.editora = editora;
+      if (titulo) busca.titulo = titulo;
+
+      const livroResultado = await livros.find(busca);
+      
+      res.status(200).send(livroResultado);
+    } catch (error) {
+      next(error);
+    }
   };
+  
+  // static listarLivroPorEditora = (req, res, next) => {
+  //   const edirora = req.query.editora;
+  //   livros.find({ "editora": edirora })
+  //     .then((livro) => {
+  //       res.status(200).json(livro);
+  //     })
+  //     .catch((error) => {
+  //       next(error);
+  //       // console.error(error);
+  //       // res.status(500).json({
+  //       //   erro: "Editora do livro não localizada.",
+  //       //   message: `${error.message}`,
+  //       // });
+  //     });
+  // };
 }
 
 export default LivroController;

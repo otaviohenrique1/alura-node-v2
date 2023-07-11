@@ -108,11 +108,15 @@ class LivroController {
     try {
       const busca = await processaBusca(req.query);
 
-      const livroResultado = await livros.find(busca)
-        .populate("autor")
-        .exec();
-
-      res.status(200).send(livroResultado);
+      if (busca !== null) {
+        const livroResultado = await livros.find(busca)
+          .populate("autor")
+          .exec();
+  
+        res.status(200).send(livroResultado);
+      } else {
+        res.status(200).send([]); // Se nao encontrou o resultado da busca
+      }
     } catch (error) {
       next(error);
     }
@@ -162,7 +166,7 @@ async function processaBusca(parametros) {
   // "i" => nao diferencia letras maiusculas de minusculas
   // const regex = new RegExp(titulo, "i");
 
-  const busca = {};
+  let busca = {};
 
   if (editora) busca.editora = editora;
   if (titulo) busca.titulo = { $regex: titulo, $options: "i" }; // operador de mongodb
@@ -179,8 +183,11 @@ async function processaBusca(parametros) {
 
   if (nomeAutor) {
     const autor = await autores.findOne({ nome: nomeAutor });
-    const autorId = autor._id;
-    busca.autor = autorId;
+    if (autor !== null) {
+      busca.autor = autor._id;
+    } else {
+      busca = null;
+    }
   }
 
   return busca;

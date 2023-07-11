@@ -20,7 +20,7 @@ class LivroController {
   static listarLivroPorId = async (req, res, next) => {
     try {
       const id = req.params.id;
-      
+
       const livroResultado = await livros.findById(id)
         .populate("autor", "nome")
         .exec();
@@ -106,25 +106,37 @@ class LivroController {
 
   static listarLivroPorFiltro = async (req, res, next) => {
     try {
-      const { editora, titulo } = req.query;
-
-      // const regex = new RegExp(titulo, "i"); // "i" => nao diferencia letras maiusculas de minusculas
-
-      const busca = {};
-      
-      if (editora) busca.editora = editora;
-      if (titulo) busca.titulo = { $regex: titulo, $options: "i" }; // operador de mongodb
-      // if (titulo) busca.titulo = regex;
-      // if (titulo) busca.titulo = titulo;
+      const busca = processaBusca(req.query);
 
       const livroResultado = await livros.find(busca);
-      
+
       res.status(200).send(livroResultado);
     } catch (error) {
       next(error);
     }
   };
-  
+
+  // static listarLivroPorFiltro = async (req, res, next) => {
+  //   try {
+  //     const { editora, titulo } = req.query;
+
+  //     // const regex = new RegExp(titulo, "i"); // "i" => nao diferencia letras maiusculas de minusculas
+
+  //     const busca = {};
+
+  //     if (editora) busca.editora = editora;
+  //     if (titulo) busca.titulo = { $regex: titulo, $options: "i" }; // operador de mongodb
+  //     // if (titulo) busca.titulo = regex;
+  //     // if (titulo) busca.titulo = titulo;
+
+  //     const livroResultado = await livros.find(busca);
+
+  //     res.status(200).send(livroResultado);
+  //   } catch (error) {
+  //     next(error);
+  //   }
+  // };
+
   // static listarLivroPorEditora = (req, res, next) => {
   //   const edirora = req.query.editora;
   //   livros.find({ "editora": edirora })
@@ -140,6 +152,30 @@ class LivroController {
   //       // });
   //     });
   // };
+}
+
+function processaBusca(parametros) {
+  const { editora, titulo, minPaginas, maxPaginas } = parametros;
+
+  // "i" => nao diferencia letras maiusculas de minusculas
+  // const regex = new RegExp(titulo, "i");
+
+  const busca = {};
+
+  if (editora) busca.editora = editora;
+  if (titulo) busca.titulo = { $regex: titulo, $options: "i" }; // operador de mongodb
+  // if (titulo) busca.titulo = regex;
+  // if (titulo) busca.titulo = titulo;
+
+  if (minPaginas || maxPaginas) busca.numeroPaginas = {};
+
+  // $gte => Greater Than or Equal => Maior ou igual que
+  if (minPaginas) busca.numeroPaginas.$gte = minPaginas;
+
+  // $lte => Less Than or Equal => Menor ou igual que
+  if (maxPaginas) busca.numeroPaginas.$lte = maxPaginas;
+
+  return busca;
 }
 
 export default LivroController;

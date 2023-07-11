@@ -1,19 +1,27 @@
 import NaoEncontrado from "../errors/NaoEncontrado.js";
 import { autores, livros } from "../models/index.js";
+import RequisicaoIncorreta from "../errors/RequisicaoIncorreta.js";
 // import livros from "../models/Livro.js";
 
 class LivroController {
   static listarLivros = async (req, res, next) => {
     try {
-      const { limite = 5, pagina = 1 } = req.query;
+      let { limite = 5, pagina = 1 } = req.query;
 
-      const livrosLista = await livros
-        .find()
-        .skip((pagina - 1) * limite) // Quantos livros vao ser pulados
-        .limit(limite) // Quantos livros vao ser exibidos
-        .populate("autor")
-        .exec();
-      res.status(200).json(livrosLista);
+      limite = parseInt(limite);
+      pagina = parseInt(pagina);
+
+      if (limite > 0 && pagina > 0) {
+        const livrosLista = await livros
+          .find()
+          .skip((pagina - 1) * limite) // Quantos livros vao ser pulados
+          .limit(limite) // Quantos livros vao ser exibidos
+          .populate("autor")
+          .exec();
+        res.status(200).json(livrosLista);
+      } else {
+        next(new RequisicaoIncorreta());
+      }
     } catch (error) {
       next(error);
       // console.error(error);
@@ -128,7 +136,7 @@ class LivroController {
         const livroResultado = await livros.find(busca)
           .populate("autor")
           .exec();
-  
+
         res.status(200).send(livroResultado);
       } else {
         res.status(200).send([]); // Se nao encontrou o resultado da busca

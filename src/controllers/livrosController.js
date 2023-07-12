@@ -172,14 +172,12 @@ class LivroController {
       const busca = await processaBusca(req.query);
 
       if (busca !== null) {
-        const livroResultado = await livros.find(busca)
+        const livroResultado = await livros
+          .find(busca)
           .populate("autor")
           .exec();
 
-        req.resultado = livroResultado;
-
-        next(); // Executa o middleware paginar
-        // res.status(200).send(livroResultado);
+        res.status(200).send(livroResultado);
       } else {
         res.status(200).send([]); // Se nao encontrou o resultado da busca
       }
